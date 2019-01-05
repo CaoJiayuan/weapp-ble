@@ -52,13 +52,33 @@ Device.prototype.getNotifyCharateristic = function(){
     self.getBandServices().then(function (srvs) {
       srvs.forEach(function(srv) {
         srv.getCharateristics().then(function(chars) {
-          chars.forEach(function(char) {
+          for (var i = 0; i < chars.length; i ++) {
+            var char = chars[i]
+            char.serviceId = srv.id
+
             if (char.properties.indicate || char.properties.notify) {
               resolve(char)
+              break
             }
-          })
+          }
         })
       })
+    })
+  })
+}
+
+Device.prototype.notifying = function(cb) {
+
+  var self = this
+  this.getNotifyCharateristic().then(function(char) {
+    wx.notifyBLECharacteristicValueChange({
+      deviceId: self.id,
+      serviceId: char.serviceId,
+      characteristicId: char.uuid,
+      state: true,
+      success: function(res) {
+        cb && cb(res)
+      },
     })
   })
 }
