@@ -46,6 +46,25 @@ Device.prototype.getBandServices = function () {
   })
 }
 
+Device.prototype.getWriteCharateristic = function(){
+  var self = this
+  return new Promise(function(resolve, rej) {
+    self.getBandServices().then(function (srvs) {
+      srvs.forEach(function(srv) {
+        srv.getCharateristics().then(function(chars) {
+          for (var i = 0; i < chars.length; i ++) {
+            var char = chars[i]
+            if (char.properties.write) {
+              resolve(char)
+              break
+            }
+          }
+        })
+      })
+    })
+  })
+}
+
 Device.prototype.getNotifyCharateristic = function(){
   var self = this
   return new Promise(function(resolve, rej) {
@@ -54,8 +73,6 @@ Device.prototype.getNotifyCharateristic = function(){
         srv.getCharateristics().then(function(chars) {
           for (var i = 0; i < chars.length; i ++) {
             var char = chars[i]
-            char.serviceId = srv.id
-
             if (char.properties.indicate || char.properties.notify) {
               resolve(char)
               break
@@ -70,19 +87,78 @@ Device.prototype.getNotifyCharateristic = function(){
 Device.prototype.notifying = function(cb) {
 
   var self = this
-  this.getNotifyCharateristic().then(function(char) {
+  return this.getNotifyCharateristic().then(function(char) {
+    return self.notifyingFrom(char)
+  })
+}
+
+Device.prototype.notifyingFrom = function(char) {
+  var self = this
+
+  return new Promise(function(resolve, reject) {
     wx.notifyBLECharacteristicValueChange({
       deviceId: self.id,
       serviceId: char.serviceId,
       characteristicId: char.uuid,
       state: true,
-      success: function(res) {
-        cb && cb(res)
-      },
+      success: resolve,
+      fail(err) {
+        reject(errMessage(err))
+      }
     })
   })
 }
 
+Device.prototype.characteristicChanging = function (cb) {
+  wx.onBLECharacteristicValueChange(cb)
+}
+
+Device.prototype.write = function(buffer) {
+  var self = this
+  return this.getWriteCharateristic().then(function(char) {
+    if (char) {
+      return self.writeTo(char, buffer)
+    } else {
+      return Promise.reject('no write charateristic found!')
+    }
+  })
+  
+}
+
+Device.prototype.writeTo = function(char, buffer){
+  var self = this
+
+  return new Promise(function(resolve, rej) {
+    wx.writeBLECharacteristicValue({
+      deviceId: self.id,
+      serviceId: char.serviceId,
+      characteristicId: char.uuid,
+      value: buffer,
+      success: resolve,
+      fail: function (err) {
+        rej(errMessage(err))
+      }
+    })
+  })
+}
+
+Device.prototype.readFrom = function(char) {
+  var self = this
+
+  return new Promise(function(resolve, reject) {
+    wx.readBLECharacteristicValue({
+      deviceId: self.id,
+      serviceId : char.serviceId,
+      characteristicId : char.uuid,
+      success(res) {
+        resolve(res)
+      },
+      fail(err) {
+        reject(err)
+      }
+    })
+  })
+}
 
 function Service(deviceId, id) {
   this.id = id
@@ -97,14 +173,34 @@ Service.prototype.getCharateristics = function() {
       deviceId: self.deviceId,
       serviceId: self.id,
       success: function (res) {
-        resolve(res.characteristics)
+        resolve(res.characteristics.map(function(char) {
+          char.serviceId = self.id
+
+          return char
+        }))
       },
       fail(err) {
-        rej(err)
+        rej(errMessage(err))
       }
     });
   })
 
+}
+
+
+/**
+ * 
+ * @param {Object} err 
+ */
+function errMessage(err){
+  if (typeof err !== 'object') {
+    return err
+  }
+
+  if (err.hasOwnProperty('errMsg')) {
+    return err.errMsg
+  }
+  return err
 }
 
 module.exports = Device

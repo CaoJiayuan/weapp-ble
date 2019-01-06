@@ -1,14 +1,39 @@
 const Promise = require('./bluebird');
 
 const Device = require('./device')
+const Buffer = require('./buffer').Buffer
 
 
-function Manager() {
-
+function ab2hex(buffer) {
+  const hexArr = Array.prototype.map.call(
+    new Uint8Array(buffer),
+    function (bit) {
+      return ('00' + bit.toString(16)).slice(-2)
+    }
+  )
+  return hexArr.join('')
 }
 
-Manager.prototype.discover = function(onWaitingDevice, onReopen, delay) {
-  return discoverDevices(onWaitingDevice, onReopen, delay)
+function Manager() {
+  this.opened = false
+}
+
+Manager.prototype.discover = function(delay) {
+
+  delay = delay || 3000
+  var promise = function(){
+    return new Promise(function(resolve, reject) {
+      startDiscovery(delay, resolve)
+    })
+  }
+
+  if (!this.opened) {
+    this.open().then(function() {
+      return promise()
+    })
+  }
+
+  return promise()
 }
 
 
@@ -17,12 +42,58 @@ Manager.prototype.getDevices = function() {
   return getKnownDevices()
 }
 
+Manager.prototype.open = function(onWaitingDevice, onReopen) {
+  var self = this
+
+  return new Promise(function(resolve, reject) {
+    wx.openBluetoothAdapter({
+      success(res) {
+        self.opened = true
+        console.log('BluetoothAdapter opened')
+        resolve(res)
+      },
+      fail(err) {
+        onWaitingDevice && onWaitingDevice()
+        wx.onBluetoothAdapterStateChange(function(res) {
+          if (res.available) {
+            onReopen && onReopen()
+            wx.openBluetoothAdapter({
+              success(res) {
+                self.opened = true
+                console.log('BluetoothAdapter opened')
+
+                resolve(res)
+              },
+              fail(e) {
+                self.opened = false
+                console.log('BluetoothAdapter open failed')
+
+                reject(e)
+              }
+            })
+          } else {
+            self.opened = false
+            console.log('BluetoothAdapter open failed')
+
+            reject(err);
+          }
+        });
+      }
+    })
+  })
+}
 
 Manager.prototype.close = function() {
-  wx.closeBluetoothAdapter({
-    success: function(res) {
-      console.log('BluetoothAdapter closed')
-    },
+  var self = this
+
+  return new Promise(function(resolve) {
+    wx.closeBluetoothAdapter({
+      success: function(res) {
+        console.log('BluetoothAdapter closed')
+        self.opened = false
+        resolve()
+      },
+    })
   })
 }
 
@@ -79,13 +150,6 @@ function getKnownDevices() {
 }
 
 function startDiscovery(delay, after) {
-  // var founds = {
-  //     devices: []
-  // };
-  // wx.onBluetoothDeviceFound(function (result) {
-  //     founds = result;
-  // });
-
   wx.startBluetoothDevicesDiscovery({
     allowDuplicatesKey: false,
   });
@@ -97,5 +161,7 @@ function startDiscovery(delay, after) {
 }
 
 module.exports = {
-  Manager
+  Manager,
+  ab2hex,
+  Buffer
 };
