@@ -84,7 +84,7 @@ Device.prototype.getNotifyCharateristic = function(){
   })
 }
 
-Device.prototype.notifying = function(cb) {
+Device.prototype.notifying = function() {
 
   var self = this
   return this.getNotifyCharateristic().then(function(char) {
