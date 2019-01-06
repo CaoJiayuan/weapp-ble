@@ -91,7 +91,7 @@ Manager.prototype.close = function() {
       success: function(res) {
         console.log('BluetoothAdapter closed')
         self.opened = false
-        resolve()
+        resolve(res)
       },
     })
   })
