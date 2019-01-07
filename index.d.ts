@@ -40,7 +40,7 @@ interface CharacteristicValue {
     characteristicId: string
 }
 
-export interface Device {
+export interface DeviceInstance {
     id: string;
     name: string;
     meta: DeviceMeta;
@@ -56,23 +56,23 @@ export interface Device {
     write(buffer : ArrayBuffer): ResultPromise;
     writeTo(char: Characteristic, buffer : ArrayBuffer): ResultPromise;
     readFrom(char: Characteristic): Promise<CharacteristicValue>;
-    new (meta : DeviceMeta): Device
+    new (meta : DeviceMeta): DeviceInstance
 }
 
-declare interface Manager {
+declare interface ManagerInstance {
     opened: boolean;
     open(onWaitingDevice ?: () => void, onReopen ?: () => void) : ResultPromise;
     close() : ResultPromise;
     discover(delay ?: Number): ResultPromise;
-    getDevices(): Promise<Device[]>;
+    getDevices(): Promise<DeviceInstance[]>;
+    new(): ManagerInstance
 }
 
 export interface Buffer extends BaseBuffer.Buffer {
 
 }
 
-export {
-    Manager
-}
+export const Manager : ManagerInstance;
+export const Device : DeviceInstance;
 
 export function ab2hex(buffer: ArrayBuffer) : string
