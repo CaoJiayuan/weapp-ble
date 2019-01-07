@@ -15,7 +15,22 @@ Device.prototype.connect = function() {
         resolve(res)
       },
       fail(err) {
-        reject()
+        reject(err)
+      }
+    })
+  })
+}
+
+Device.prototype.disconnect = function() {
+  var self = this
+  return new Promise(function(resolve, reject) {
+    wx.closeBLEConnection({
+      deviceId: self.id,
+      success: function(res) {
+        resolve(res)
+      },
+      fail(err) {
+        reject(err)
       }
     })
   })

@@ -1,1 +1,1 @@
-# 小程序手环BLE SDK
+# 小程序BLE SDK

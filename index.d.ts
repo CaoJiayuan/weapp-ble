@@ -45,6 +45,7 @@ export interface Device {
     name: string;
     meta: DeviceMeta;
     connect() : ResultPromise;
+    disconnect() : ResultPromise;
     getServices(): Promise<Service[]>;
     getBandServices(): Promise<Service[]>;
     getWriteCharacteristic(): Promise<Characteristic>;
@@ -58,7 +59,7 @@ export interface Device {
     new (meta : DeviceMeta): Device
 }
 
-export interface Manager {
+declare interface Manager {
     opened: boolean;
     open(onWaitingDevice ?: () => void, onReopen ?: () => void) : ResultPromise;
     close() : ResultPromise;
@@ -68,6 +69,10 @@ export interface Manager {
 
 export interface Buffer extends BaseBuffer.Buffer {
 
+}
+
+export {
+    Manager
 }
 
 export function ab2hex(buffer: ArrayBuffer) : string
