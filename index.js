@@ -28,7 +28,7 @@ Manager.prototype.discover = function(delay) {
   }
 
   if (!this.opened) {
-    this.open().then(function() {
+    return this.open().then(function() {
       return promise()
     })
   }
