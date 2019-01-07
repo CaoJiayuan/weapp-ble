@@ -5,6 +5,16 @@ interface MsgResult {
     errMsg: string;
 }
 
+interface DeviceMeta {
+    name ?: string;
+    deviceId: string;
+    RSSI ?: Number;
+    advertisData ?: ArrayBuffer;
+    advertisServiceUUIDs ?: string[];
+    localName ?: string;
+    serviceData ?: object;
+}
+
 interface ResultPromise extends Promise<MsgResult> {
 
 }
@@ -30,9 +40,10 @@ interface CharacteristicValue {
     characteristicId: string
 }
 
-interface Device {
+export interface Device {
     id: string;
     name: string;
+    meta: DeviceMeta;
     connect() : ResultPromise;
     getServices(): Promise<Service[]>;
     getBandServices(): Promise<Service[]>;
@@ -43,10 +54,12 @@ interface Device {
     characteristicChanging(cb : (res: CharacteristicValue) => void): void;
     write(buffer : ArrayBuffer): ResultPromise;
     writeTo(char: Characteristic, buffer : ArrayBuffer): ResultPromise;
-    readFrom(char: Characteristic): Promise<CharacteristicValue>
+    readFrom(char: Characteristic): Promise<CharacteristicValue>;
+    new (meta : DeviceMeta): Device
 }
 
 export interface Manager {
+    opened: boolean;
     open(onWaitingDevice ?: () => void, onReopen ?: () => void) : ResultPromise;
     close() : ResultPromise;
     discover(delay ?: Number): ResultPromise;

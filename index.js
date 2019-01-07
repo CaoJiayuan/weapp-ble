@@ -163,5 +163,6 @@ function startDiscovery(delay, after) {
 module.exports = {
   Manager,
   ab2hex,
-  Buffer
+  Buffer,
+  Device
 };
