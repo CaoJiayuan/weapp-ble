@@ -46,12 +46,12 @@ Device.prototype.getBandServices = function () {
   })
 }
 
-Device.prototype.getWriteCharateristic = function(){
+Device.prototype.getWriteCharacteristic = function(){
   var self = this
   return new Promise(function(resolve, rej) {
     self.getBandServices().then(function (srvs) {
       srvs.forEach(function(srv) {
-        srv.getCharateristics().then(function(chars) {
+        srv.getCharacteristics().then(function(chars) {
           for (var i = 0; i < chars.length; i ++) {
             var char = chars[i]
             if (char.properties.write) {
@@ -65,12 +65,12 @@ Device.prototype.getWriteCharateristic = function(){
   })
 }
 
-Device.prototype.getNotifyCharateristic = function(){
+Device.prototype.getNotifyCharacteristic = function(){
   var self = this
   return new Promise(function(resolve, rej) {
     self.getBandServices().then(function (srvs) {
       srvs.forEach(function(srv) {
-        srv.getCharateristics().then(function(chars) {
+        srv.getCharacteristics().then(function(chars) {
           for (var i = 0; i < chars.length; i ++) {
             var char = chars[i]
             if (char.properties.indicate || char.properties.notify) {
@@ -165,7 +165,7 @@ function Service(deviceId, id) {
   this.deviceId = deviceId
 }
 
-Service.prototype.getCharateristics = function() {
+Service.prototype.getCharacteristics = function() {
 
   var self = this
   return new Promise(function(resolve, rej) {

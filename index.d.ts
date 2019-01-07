@@ -1,8 +1,7 @@
-
-import BaseBuffer from './buffer'
+import BaseBuffer from './buffer.js'
 
 interface MsgResult {
-    code: int;
+    code: Number;
     errMsg: string;
 }
 
@@ -12,10 +11,10 @@ interface ResultPromise extends Promise<MsgResult> {
 interface Service {
     id: string;
     deviceId : string;
-    getCharateristics(): Promise<Charateristic[]>
+    getCharacteristics(): Promise<Characteristic[]>
 }
 
-interface Charateristic {
+interface Characteristic {
     uuid: string;
     serviceId: string;
     properties: {
@@ -26,9 +25,9 @@ interface Charateristic {
     };
 }
 
-interface CharValue {
+interface CharacteristicValue {
     value : ArrayBuffer;
-    charateristicId: string
+    characteristicId: string
 }
 
 interface Device {
@@ -37,24 +36,24 @@ interface Device {
     connect() : ResultPromise;
     getServices(): Promise<Service[]>;
     getBandServices(): Promise<Service[]>;
-    getWriteCharateristic(): Promise<Charateristic>;
-    getNotifyCharateristic(): Promise<Charateristic>;
+    getWriteCharacteristic(): Promise<Characteristic>;
+    getNotifyCharacteristic(): Promise<Characteristic>;
     notifying(): ResultPromise;
-    notifyingFrom(char : Charateristic): ResultPromise;
-    characteristicChanging(cb : (res: CharValue) => void): void;
+    notifyingFrom(char : Characteristic): ResultPromise;
+    characteristicChanging(cb : (res: CharacteristicValue) => void): void;
     write(buffer : ArrayBuffer): ResultPromise;
-    writeTo(char: Charateristic, buffer : ArrayBuffer): ResultPromise;
-    readFrom(char: Charateristic): Promise<CharValue>
+    writeTo(char: Characteristic, buffer : ArrayBuffer): ResultPromise;
+    readFrom(char: Characteristic): Promise<CharacteristicValue>
 }
 
 export interface Manager {
     open(onWaitingDevice ?: () => void, onReopen ?: () => void) : ResultPromise;
     close() : ResultPromise;
-    discover(delay ?: int): ResultPromise;
+    discover(delay ?: Number): ResultPromise;
     getDevices(): Promise<Device[]>;
 }
 
-export interface Buffer extends BaseBuffer {
+export interface Buffer extends BaseBuffer.Buffer {
 
 }
 
