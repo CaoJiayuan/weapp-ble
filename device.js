@@ -4,6 +4,7 @@ function Device(meta) {
   this.meta = meta
   this.id = meta.deviceId
   this.name = meta.name
+  this.connected = false
 }
 
 Device.prototype.connect = function() {
@@ -12,9 +13,11 @@ Device.prototype.connect = function() {
     wx.createBLEConnection({
       deviceId: self.id,
       success: function(res) {
+        self.connected = true
         resolve(res)
       },
       fail(err) {
+        self.connected = false
         reject(err)
       }
     })
@@ -27,6 +30,7 @@ Device.prototype.disconnect = function() {
     wx.closeBLEConnection({
       deviceId: self.id,
       success: function(res) {
+        self.connected = false
         resolve(res)
       },
       fail(err) {

@@ -46,6 +46,7 @@ export interface DeviceInstance {
     id: string;
     name: string;
     meta: DeviceMeta;
+    connected: Boolean;
     connect() : ResultPromise;
     disconnect() : ResultPromise;
     getServices(): Promise<Service[]>;
