@@ -1,4 +1,4 @@
-import BaseBuffer from './buffer'
+import {Buffer as BaseBuffer} from './buffer'
 
 interface MsgResult {
     code: Number;
@@ -68,7 +68,7 @@ declare interface ManagerInstance {
     new(): ManagerInstance
 }
 
-export class Buffer extends BaseBuffer.Buffer {
+export class Buffer extends BaseBuffer {
 
 }
 
