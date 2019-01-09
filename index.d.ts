@@ -37,7 +37,9 @@ interface Characteristic {
 
 interface CharacteristicValue {
     value : ArrayBuffer;
-    characteristicId: string
+    characteristicId: string;
+    serviceId: string;
+    deviceId: string;
 }
 
 export interface DeviceInstance {
@@ -73,6 +75,9 @@ export class Buffer extends BaseBuffer {
 }
 
 export const Manager : ManagerInstance;
-export const Device : DeviceInstance;
+
+export const Device : {
+    new(meta : DeviceMeta): DeviceInstance
+};
 
 export function ab2hex(buffer: ArrayBuffer) : string

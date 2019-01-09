@@ -1,5 +1,5 @@
 const Promise = require('./bluebird')
-
+const {ab2hex} = require('./utils')
 function Device(meta) {
   this.meta = meta
   this.id = meta.deviceId
@@ -102,7 +102,7 @@ Device.prototype.getNotifyCharacteristic = function(){
 Device.prototype.notifying = function() {
 
   var self = this
-  return this.getNotifyCharateristic().then(function(char) {
+  return this.getNotifyCharacteristic().then(function(char) {
     return self.notifyingFrom(char)
   })
 }
@@ -129,8 +129,9 @@ Device.prototype.characteristicChanging = function (cb) {
 }
 
 Device.prototype.write = function(buffer) {
+  console.log( 'write', ab2hex(buffer))
   var self = this
-  return this.getWriteCharateristic().then(function(char) {
+  return this.getWriteCharacteristic().then(function(char) {
     if (char) {
       return self.writeTo(char, buffer)
     } else {
