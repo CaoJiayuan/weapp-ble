@@ -9,6 +9,12 @@ function Device(meta) {
 
 Device.prototype.connect = function() {
   var self = this
+  if (this.connected) {
+    return Promise.resolve({
+      code: 0
+    })
+  }
+
   return new Promise(function(resolve, reject) {
     wx.createBLEConnection({
       deviceId: self.id,
@@ -26,6 +32,12 @@ Device.prototype.connect = function() {
 
 Device.prototype.disconnect = function() {
   var self = this
+  if (!this.connected){
+    return Promise.resolve({
+      code: 0
+    })
+  }
+
   return new Promise(function(resolve, reject) {
     wx.closeBLEConnection({
       deviceId: self.id,
