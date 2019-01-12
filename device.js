@@ -70,59 +70,6 @@ Device.prototype.getServices = function() {
   })
 }
 
-Device.prototype.getBandServices = function () {
-  return this.getServices().then(function(srvs) {
-
-    return Promise.resolve(srvs.filter(s => s.id.indexOf('0000FF20') === 0))
-  })
-}
-
-Device.prototype.getWriteCharacteristic = function(){
-  var self = this
-  return new Promise(function(resolve, rej) {
-    self.getBandServices().then(function (srvs) {
-      srvs.forEach(function(srv) {
-        srv.getCharacteristics().then(function(chars) {
-          for (var i = 0; i < chars.length; i ++) {
-            var char = chars[i]
-            if (char.properties.write) {
-              resolve(char)
-              break
-            }
-          }
-        })
-      })
-    })
-  })
-}
-
-Device.prototype.getNotifyCharacteristic = function(){
-  var self = this
-  return new Promise(function(resolve, rej) {
-    self.getBandServices().then(function (srvs) {
-      srvs.forEach(function(srv) {
-        srv.getCharacteristics().then(function(chars) {
-          for (var i = 0; i < chars.length; i ++) {
-            var char = chars[i]
-            if (char.properties.indicate || char.properties.notify) {
-              resolve(char)
-              break
-            }
-          }
-        })
-      })
-    })
-  })
-}
-
-Device.prototype.notifying = function() {
-
-  var self = this
-  return this.getNotifyCharacteristic().then(function(char) {
-    return self.notifyingFrom(char)
-  })
-}
-
 Device.prototype.notifyingFrom = function(char) {
   var self = this
 
@@ -142,19 +89,6 @@ Device.prototype.notifyingFrom = function(char) {
 
 Device.prototype.characteristicChanging = function (cb) {
   wx.onBLECharacteristicValueChange(cb)
-}
-
-Device.prototype.write = function(buffer) {
-  console.log( 'write', ab2hex(buffer))
-  var self = this
-  return this.getWriteCharacteristic().then(function(char) {
-    if (char) {
-      return self.writeTo(char, buffer)
-    } else {
-      return Promise.reject('no write charateristic found!')
-    }
-  })
-  
 }
 
 Device.prototype.writeTo = function(char, buffer){
