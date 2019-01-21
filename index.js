@@ -9,7 +9,7 @@ function Manager() {
   this.opened = false
 }
 
-Manager.prototype.discover = function(delay) {
+Manager.prototype.discover = function(delay, onWaitingDevice, onReopen) {
 
   delay = delay || 3000
   var promise = function(){
@@ -19,7 +19,7 @@ Manager.prototype.discover = function(delay) {
   }
 
   if (!this.opened) {
-    return this.open().then(function() {
+    return this.open(onWaitingDevice, onReopen).then(function() {
       return promise()
     })
   }
